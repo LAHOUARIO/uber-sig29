@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>واجهة الزبون - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 { color: #FFD700; }
+    .driver {
+      border: 1px solid #555;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      background-color: #111;
+    }
+    .status {
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .available { background-color: green; color: #fff; }
+    .busy { background-color: orange; color: #000; }
+    .offline { background-color: red; color: #fff; }
+    button {
+      background-color: #FFD700;
+      border: none;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-left: 5px;
+    }
+    #orderForm, #chatWindow {
+      background-color: #111;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #orderForm input, #orderForm textarea, #messageInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #222;
+      color: #fff;
+    }
+    #map {
+      height: 300px;
+      margin-top: 20px;
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+    }
+    #messages {
+      height: 200px;
+      overflow-y: scroll;
+      background: #000;
+      color: #fff;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🚕 السائقون المتاحون</h1>
+
+<!-- ✅ زر تسجيل الخروج -->
+<div style="text-align:right;">
+  <button onclick="logout()" style="background:red; color:white;">🚪 تسجيل الخروج</button>
+</div>
+
+<button onclick="loadDrivers()">🔄 تحديث القائمة</button>
+<div id="map"></div>
+<div id="drivers"></div>
+
+<<<<<<< HEAD
+=======
+<!-- ✅ نموذج إرسال الطلب -->
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+<div id="orderForm" style="display: none;">
+  <h3>📝 إرسال طلب توصيل</h3>
+  <input type="hidden" id="selectedDriver" />
+  <input type="text" id="from" placeholder="🚩 مكان الانطلاق" required />
+  <input type="text" id="to" placeholder="🎯 الوجهة" required />
+  <textarea id="note" placeholder="📝 ملاحظات (اختياري)"></textarea>
+  <button onclick="sendOrder()">📤 إرسال الطلب</button>
+</div>
+
+<<<<<<< HEAD
+=======
+<!-- ✅ نافذة الدردشة -->
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+<div id="chatWindow" style="display:none;">
+  <h3>💬 الدردشة مع السائق</h3>
+  <div id="driverInfo"></div>
+  <div id="messages"></div>
+  <input type="text" id="messageInput" placeholder="✍️ اكتب رسالتك...">
+  <button onclick="sendMessage()">📤 إرسال</button>
+  <br><br>
+  <button onclick="closeChat()">❌ إغلاق الدردشة</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+<<<<<<< HEAD
+  // ✅ تشغيل الصوت
+=======
+  // ✅ دالة تشغيل الصوت
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+  function playSound(name) {
+    const audio = new Audio(`/sound/${name}`);
+    audio.play().catch(err => console.error("فشل تشغيل الصوت:", err));
+  }
+
+<<<<<<< HEAD
+  // ✅ التحقق من الجلسة (login)
+  let clientPhone = localStorage.getItem("phone");
+  const role = localStorage.getItem("role");
+
+  if (!clientPhone || role !== "client") {
+    clientPhone = prompt("📱 أدخل رقم هاتفك (الزبون):");
+    if (clientPhone) {
+      localStorage.setItem("phone", clientPhone);
+      localStorage.setItem("clientPhone", clientPhone);
+      localStorage.setItem("role", "client");
+    } else {
+=======
+  let clientPhone = new URLSearchParams(location.search).get("phone") || localStorage.getItem("clientPhone");
+  if (!clientPhone) {
+    clientPhone = prompt("📱 أدخل رقم هاتفك (الزبون):");
+    if (clientPhone) localStorage.setItem("clientPhone", clientPhone);
+    else {
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+      alert("📛 لا يمكن المتابعة بدون رقم الهاتف.");
+      location.href = "index.html";
+    }
+  }
+
+<<<<<<< HEAD
+  // ✅ زر تسجيل الخروج
+  function logout() {
+    localStorage.clear();
+    location.href = "index.html";
+  }
+
+  const isInSig = confirm("❓ هل تقيم حاليًا في مدينة سيق؟");
+  if (!isInSig) {
+    document.body.innerHTML = "<h2 style='color:red;'>🚫 هذه الخدمة متاحة فقط للمقيمين في سيق.</h2>";
+    throw new Error("خارج نطاق الخدمة");
+  }
+
+  const map = L.map('map').setView([35.5441, 0.1896], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const clientIcon = L.icon({ iconUrl: 'icons/client.png', iconSize: [32, 32] });
+  const carIcon = L.icon({ iconUrl: 'icons/car.png', iconSize: [32, 32] });
+
+  let clientMarker;
+  let driverMarkers = [];
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    clientMarker = L.marker([lat, lon], { icon: clientIcon }).addTo(map).bindPopup("📍 أنت هنا");
+    map.setView([lat, lon], 14);
+
+    fetch("/update-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: clientPhone, lat, lon })
+    });
+  }, err => {
+    alert("❌ لم يتم تحديد موقعك");
+  });
+
+  function updateDriverMarkers(drivers) {
+    driverMarkers.forEach(marker => map.removeLayer(marker));
+    driverMarkers = [];
+
+    drivers.forEach(driver => {
+      if (driver.lat && driver.lon && driver.status === "available") {
+        const marker = L.marker([driver.lat, driver.lon], { icon: carIcon })
+          .addTo(map)
+          .on("click", () => showOrderForm(driver.phone))
+          .bindPopup(`🚗 ${driver.name}`);
+        driverMarkers.push(marker);
+      }
+    });
+  }
+
+  function loadDrivers() {
+    fetch("/available-drivers")
+      .then(res => res.json())
+      .then(drivers => {
+        const container = document.getElementById("drivers");
+        container.innerHTML = "";
+        drivers.forEach(driver => {
+          const statusClass =
+            driver.status === "available" ? "available" :
+            driver.status === "busy" ? "busy" : "offline";
+
+=======
+  localStorage.setItem("phone", clientPhone);
+  localStorage.setItem("role", "client");
+
+  const isInSig = confirm("❓ هل تقيم حاليًا في مدينة سيق؟");
+  if (!isInSig) {
+    document.body.innerHTML = "<h2 style='color:red;'>🚫 هذه الخدمة متاحة فقط للمقيمين في سيق.</h2>";
+    throw new Error("خارج نطاق الخدمة");
+  }
+
+  const map = L.map('map').setView([35.5441, 0.1896], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const clientIcon = L.icon({ iconUrl: 'icons/client.png', iconSize: [32, 32] });
+  const carIcon = L.icon({ iconUrl: 'icons/car.png', iconSize: [32, 32] });
+
+  let clientMarker;
+  let driverMarkers = [];
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    clientMarker = L.marker([lat, lon], { icon: clientIcon }).addTo(map).bindPopup("📍 أنت هنا");
+    map.setView([lat, lon], 14);
+
+    fetch("/update-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: clientPhone, lat, lon })
+    });
+  }, err => {
+    alert("❌ لم يتم تحديد موقعك");
+  });
+
+  function updateDriverMarkers(drivers) {
+    driverMarkers.forEach(marker => map.removeLayer(marker));
+    driverMarkers = [];
+
+    drivers.forEach(driver => {
+      if (driver.lat && driver.lon && driver.status === "available") {
+        const marker = L.marker([driver.lat, driver.lon], { icon: carIcon })
+          .addTo(map)
+          .on("click", () => showOrderForm(driver.phone))
+          .bindPopup(`🚗 ${driver.name}`);
+        driverMarkers.push(marker);
+      }
+    });
+  }
+
+  function loadDrivers() {
+    fetch("/available-drivers")
+      .then(res => res.json())
+      .then(drivers => {
+        const container = document.getElementById("drivers");
+        container.innerHTML = "";
+        drivers.forEach(driver => {
+          const statusClass =
+            driver.status === "available" ? "available" :
+            driver.status === "busy" ? "busy" : "offline";
+
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+          container.innerHTML += `
+            <div class="driver">
+              <p><strong>👤 الاسم:</strong> ${driver.name}</p>
+              <p><strong>🚗 المركبة:</strong> ${driver.vehicle}</p>
+              <p><strong>📱 الهاتف:</strong> ${driver.phone}</p>
+              <p><span class="status ${statusClass}">${driver.status}</span></p>
+              ${driver.status === "available"
+                ? `<button onclick="showOrderForm('${driver.phone}')">📨 طلب توصيل</button>`
+                : ""}
+            </div>
+          `;
+        });
+
+        updateDriverMarkers(drivers);
+      });
+  }
+
+  function showOrderForm(driverPhone) {
+    document.getElementById("selectedDriver").value = driverPhone;
+    document.getElementById("orderForm").style.display = "block";
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  async function sendOrder() {
+    const driver = document.getElementById("selectedDriver").value;
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
+    const note = document.getElementById("note").value;
+
+    const response = await fetch("/send-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client: clientPhone, driver, from, to, note })
+    });
+
+    const result = await response.text();
+    alert(result);
+
+    localStorage.setItem("client", clientPhone);
+    localStorage.setItem("driver", driver);
+
+    openChat(clientPhone, driver);
+  }
+
+  const socket = io();
+  let roomId;
+
+<<<<<<< HEAD
+  socket.on("orderRejected", ({ driver }) => {
+=======
+  // ✅ إشعار الزبون إذا السائق رفض الطلب
+  socket.on("orderRejected", ({ driver, orderId }) => {
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+    alert(`❌ تم رفض طلبك من طرف السائق (${driver})`);
+    playSound("rejected.mp3");
+  });
+
+  function openChat(client, driver) {
+    roomId = `${client}-${driver}`;
+    document.getElementById("chatWindow").style.display = "block";
+    socket.emit("joinRoom", roomId);
+    loadChatHistory(roomId);
+    showDriverInfo(driver);
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const message = input.value;
+    if (!message) return;
+    const timestamp = new Date().toLocaleTimeString();
+
+    socket.emit("chat message", {
+      roomId,
+      sender: clientPhone,
+      message,
+      timestamp
+    });
+
+    input.value = "";
+  }
+
+  function closeChat() {
+    document.getElementById("chatWindow").style.display = "none";
+    document.getElementById("messages").innerHTML = "";
+    socket.emit("leaveRoom", roomId);
+  }
+
+  function showDriverInfo(driverPhone) {
+    fetch(`/get-name-by-phone?phone=${driverPhone}`)
+      .then(res => res.json())
+      .then(data => {
+        const name = data.name;
+        document.getElementById("driverInfo").innerHTML =
+          `<p><strong>👨‍✈️ سائق الرحلة:</strong> ${name} (${driverPhone})</p>`;
+      });
+  }
+
+  function saveMessageLocally(roomId, sender, message, timestamp) {
+    let chatHistory = JSON.parse(localStorage.getItem(roomId)) || [];
+    chatHistory.push({ sender, message, timestamp });
+    localStorage.setItem(roomId, JSON.stringify(chatHistory));
+  }
+
+  function loadChatHistory(roomId) {
+    const history = JSON.parse(localStorage.getItem(roomId)) || [];
+    const messagesDiv = document.getElementById("messages");
+    messagesDiv.innerHTML = "";
+    history.forEach(({ sender, message, timestamp }) => {
+      const msgDiv = document.createElement("div");
+      msgDiv.innerHTML = `<strong>${sender}:</strong> ${message} <span style="color:#888;">(${timestamp})</span>`;
+      messagesDiv.appendChild(msgDiv);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  socket.on("chat message", ({ sender, message, timestamp }) => {
+    const msgDiv = document.createElement("div");
+    msgDiv.innerHTML = `<strong>${sender}:</strong> ${message} <span style="color:#888;">(${timestamp})</span>`;
+    const messagesDiv = document.getElementById("messages");
+    messagesDiv.appendChild(msgDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    saveMessageLocally(roomId, sender, message, timestamp);
+    playSound("message.mp3");
+  });
+
+  loadDrivers();
+</script>
+
+</body>
+</html>

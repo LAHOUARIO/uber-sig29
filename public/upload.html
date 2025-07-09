@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>📤 رفع تسجيل صوتي - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #000;
+      color: #FFD700;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    input[type="file"] {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #222;
+      border: 1px solid #555;
+      color: #fff;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #FFD700;
+      border: none;
+      color: black;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📤 رفع تسجيل صوتي</h2>
+  
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="audioFile" name="audio" accept="audio/*" required><br>
+    <button type="submit">⬆️ رفع</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById("audioFile");
+      const formData = new FormData();
+      formData.append("audio", fileInput.files[0]);
+
+      const res = await fetch("/upload-audio", {
+        method: "POST",
+        body: formData,
+      });
+
+      const text = await res.text();
+      result.innerHTML = `<p>${text}</p>`;
+
+      if (res.ok) {
+        const url = `/uploads/audio/${fileInput.files[0].name}`;
+        result.innerHTML += `<audio controls src="${url}"></audio>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الدخول أو التسجيل - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+    h2 { color: #FFD700; }
+    input, select, button {
+      display: block; width: 100%; padding: 10px; margin: 10px 0;
+      border: none; border-radius: 5px;
+    }
+    button { background: #FFD700; color: black; font-weight: bold; cursor: pointer; }
+    .form-box { background: #222; padding: 20px; border-radius: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>🚪 تسجيل الدخول</h2>
+  <div class="form-box">
+    <input type="text" id="loginPhone" placeholder="📱 رقم الهاتف">
+    <input type="password" id="loginPassword" placeholder="🔐 كلمة المرور">
+    <button onclick="login()">تسجيل الدخول</button>
+  </div>
+
+  <h2>📝 إنشاء حساب جديد</h2>
+  <div class="form-box">
+    <select id="role">
+      <option value="client">زبون</option>
+      <option value="driver">سائق</option>
+    </select>
+    <input type="text" id="name" placeholder="👤 الاسم الكامل">
+    <input type="text" id="phone" placeholder="📱 رقم الهاتف">
+    <input type="password" id="password" placeholder="🔐 كلمة المرور">
+    <input type="text" id="vehicle" placeholder="🚗 نوع المركبة (للسائق فقط)">
+    <button onclick="register()">إنشاء الحساب</button>
+  </div>
+
+  <script>
+    async function login() {
+      const phone = document.getElementById("loginPhone").value;
+      const password = document.getElementById("loginPassword").value;
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password })
+      });
+      const text = await res.text();
+      alert(text);
+
+      if (text.startsWith("✅")) {
+        // 🔁 نحاول نعرف الدور من السيرفر
+        const users = await (await fetch("/available-drivers")).json();
+        const isDriver = users.find(u => u.phone === phone);
+        if (isDriver) {
+          location.href = "driver-dashboard.html?phone=" + phone;
+        } else {
+          location.href = "client.html?phone=" + phone;
+        }
+      }
+    }
+
+    async function register() {
+      const role = document.getElementById("role").value;
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const password = document.getElementById("password").value;
+      const vehicle = document.getElementById("vehicle").value;
+
+      const url = role === "driver" ? "/register-driver" : "/register-client";
+      const body = role === "driver"
+        ? { name, phone, password, vehicle }
+        : { name, phone, password };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const text = await res.text();
+      alert(text);
+
+      if (text.startsWith("✅")) {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تقييم السائق - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      text-align: center;
+      padding: 50px 20px;
+      color: #333;
+    }
+    h1 {
+      color: #FFD700;
+      margin-bottom: 20px;
+    }
+    .stars {
+      font-size: 2.5rem;
+      cursor: pointer;
+    }
+    .star {
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    .star.selected {
+      color: #FFD700;
+    }
+    #rating-value {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #000;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #FFD700;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>⭐ تقييم السائق</h1>
+
+  <div class="stars" id="star-container">
+    <span class="star" data-value="1">★</span>
+    <span class="star" data-value="2">★</span>
+    <span class="star" data-value="3">★</span>
+    <span class="star" data-value="4">★</span>
+    <span class="star" data-value="5">★</span>
+  </div>
+
+  <div id="rating-value">اختر تقييمك من 1 إلى 5</div>
+
+  <button onclick="submitRating()">تأكيد التقييم</button>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const client = urlParams.get("client");
+    const driver = urlParams.get("driver");
+
+    // ✅ منع السائق من فتح صفحة التقييم
+    fetch(`/get-role-by-phone?phone=${client}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.role === "driver") {
+          alert("❌ لا يمكنك الوصول إلى هذه الصفحة كسائق.");
+          window.location.href = "driver-dashboard.html?phone=" + client;
+        }
+      });
+
+    const stars = document.querySelectorAll(".star");
+    const ratingValue = document.getElementById("rating-value");
+    let selectedRating = 0;
+
+    stars.forEach(star => {
+      star.addEventListener("click", () => {
+        selectedRating = parseInt(star.dataset.value);
+        updateStars(selectedRating);
+        ratingValue.innerText = `⭐⭐⭐ لقد اخترت ${selectedRating} من 5`;
+      });
+    });
+
+    function updateStars(rating) {
+      stars.forEach(star => {
+        if (parseInt(star.dataset.value) <= rating) {
+          star.classList.add("selected");
+        } else {
+          star.classList.remove("selected");
+        }
+      });
+    }
+
+    function submitRating() {
+      if (selectedRating === 0) {
+        alert("يرجى اختيار تقييم قبل الإرسال.");
+        return;
+      }
+
+      fetch("/submit-rating", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client, driver, rating: selectedRating })
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert(msg);
+        window.location.href = "client.html?phone=" + client;
+      });
+    }
+  </script>
+</body>
+</html>

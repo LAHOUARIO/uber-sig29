@@ -1,0 +1,355 @@
+<!-- 🔁 كامل كود driver-dashboard.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة السائق - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      background-color: #000;
+      color: #FFD700;
+      padding: 20px;
+    }
+    h2 { text-align: center; }
+    .order {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #111;
+      border: 1px solid #FFD700;
+      border-radius: 10px;
+    }
+    .status-btn {
+      margin: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .green { background: green; color: white; }
+    .orange { background: orange; color: black; }
+    .red { background: red; color: white; }
+    .accept-btn {
+      background-color: #FFD700;
+      color: black;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+      margin-right: 5px;
+    }
+    #map {
+      height: 300px;
+      margin-top: 20px;
+      border-radius: 10px;
+      border: 2px solid #FFD700;
+    }
+    #chatBox {
+      background-color: #111;
+      border: 1px solid #FFD700;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 20px;
+      display: none;
+    }
+    #chatMessages {
+      height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #333;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #000;
+    }
+    #chatInput {
+      width: 80%;
+      padding: 8px;
+    }
+    #sendBtn {
+      padding: 8px;
+      background: #FFD700;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🚖 مرحبًا بك في لوحة السائق</h2>
+
+<<<<<<< HEAD
+  <!-- زر تسجيل الخروج -->
+  <div style="text-align:right; margin-bottom: 15px;">
+    <button onclick="logout()" style="background:red; color:white; padding:10px; border:none; border-radius:5px;">
+      🚪 تسجيل الخروج
+    </button>
+  </div>
+
+=======
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+  <div id="currentStatus" style="text-align:center; font-size: 18px; margin-bottom: 10px;">
+    🟠 جاري التحديد...
+  </div>
+
+  <div style="text-align:center; margin-bottom:20px;">
+    <button id="btn-available" onclick="setStatus('available')" class="status-btn green">🟢 متوفر</button>
+    <button id="btn-busy" onclick="setStatus('busy')" class="status-btn orange">🟠 مشغول</button>
+    <button id="btn-offline" onclick="setStatus('offline')" class="status-btn red">🔴 غير متصل</button>
+  </div>
+
+  <h3>📥 الطلبات الجديدة:</h3>
+  <div id="orders"></div>
+  <div id="map"></div>
+
+<<<<<<< HEAD
+=======
+  <div id="map"></div>
+
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+  <div id="chatBox">
+    <h3>💬 دردشة مع الزبون</h3>
+    <div id="chatMessages"></div>
+    <input id="chatInput" placeholder="✍️ اكتب رسالة..." />
+    <button id="sendBtn">📤 إرسال</button>
+  </div>
+
+  <!-- ✅ أصوات -->
+  <audio id="orderSound" src="sounds/order.mp3"></audio>
+  <audio id="messageSound" src="sounds/message.mp3"></audio>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+<<<<<<< HEAD
+    // ✅ التحقق من تسجيل الدخول
+    const driverPhone = localStorage.getItem("phone");
+    const role = localStorage.getItem("role");
+    if (!driverPhone || role !== "driver") {
+      alert("📛 الرجاء تسجيل الدخول أولاً.");
+      location.href = "index.html";
+    }
+
+    // ✅ زر تسجيل الخروج
+    function logout() {
+      localStorage.clear();
+      location.href = "index.html";
+    }
+
+    // باقي الكود كما هو ...
+    let map, driverMarker;
+    let clientPhone = "";
+    let roomId = "";
+    const socket = io();
+
+    function initMap() {
+      map = L.map('map').setView([35.5441, 0.1896], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © OpenStreetMap contributors'
+      }).addTo(map);
+    }
+
+    function updateDriverLocation() {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+
+        fetch("/update-location", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: driverPhone, lat: latitude, lon: longitude })
+        });
+
+=======
+    const driverPhone = localStorage.getItem("phone");
+    if (!driverPhone) {
+      alert("📛 رقم الهاتف مفقود. الرجاء تسجيل الدخول.");
+      location.href = "index.html";
+    }
+
+    let map, driverMarker;
+    let clientPhone = "";
+    let roomId = "";
+    const socket = io();
+
+    function initMap() {
+      map = L.map('map').setView([35.5441, 0.1896], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © OpenStreetMap contributors'
+      }).addTo(map);
+    }
+
+    function updateDriverLocation() {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+
+        fetch("/update-location", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: driverPhone, lat: latitude, lon: longitude })
+        });
+
+>>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
+        if (!driverMarker) {
+          driverMarker = L.marker([latitude, longitude], {
+            icon: L.icon({ iconUrl: "icons/car.png", iconSize: [40, 40], iconAnchor: [20, 20] })
+          }).addTo(map).bindPopup("🚗 موقعك الحالي");
+        } else {
+          driverMarker.setLatLng([latitude, longitude]);
+        }
+
+        map.setView([latitude, longitude], 14);
+      });
+    }
+
+    function setStatus(status) {
+      fetch("/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: driverPhone, status })
+      })
+      .then(res => res.text())
+      .then(response => {
+        alert(response);
+        localStorage.setItem("driver_status", status);
+        updateStatusUI(status);
+      });
+    }
+
+    function updateStatusUI(status) {
+      const statusText = {
+        available: "🟢 متوفر",
+        busy: "🟠 مشغول",
+        offline: "🔴 غير متصل"
+      };
+
+      document.getElementById("currentStatus").innerText = `أنت الآن: ${statusText[status]}`;
+      document.querySelectorAll(".status-btn").forEach(btn => {
+        btn.style.border = "none";
+        btn.style.boxShadow = "none";
+      });
+
+      const btn = document.getElementById("btn-" + status);
+      if (btn) {
+        btn.style.border = "2px solid #FFD700";
+        btn.style.boxShadow = "0 0 10px #FFD700";
+      }
+    }
+
+    const savedStatus = localStorage.getItem("driver_status");
+    if (savedStatus) updateStatusUI(savedStatus);
+
+    function acceptOrder(id, client) {
+      fetch("/accept-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.text())
+      .then(() => {
+        alert("✅ تم قبول الطلب.");
+        clientPhone = client;
+        roomId = `${clientPhone}-${driverPhone}`;
+        document.getElementById("chatBox").style.display = "block";
+        joinChatRoom();
+
+        fetch(`/get-client-location?phone=${client}`)
+          .then(res => res.json())
+          .then(data => {
+            if (!data.lat || !data.lon) return alert("❌ لم يتم العثور على موقع الزبون");
+
+            const clientMarker = L.marker([data.lat, data.lon], {
+              icon: L.icon({ iconUrl: "icons/client.png", iconSize: [32, 32], iconAnchor: [16, 32] })
+            }).addTo(map).bindPopup("📍 الزبون");
+
+            const driverLatLng = driverMarker.getLatLng();
+            const clientLatLng = L.latLng(data.lat, data.lon);
+
+            L.polyline([driverLatLng, clientLatLng], {
+              color: "yellow",
+              weight: 4,
+              dashArray: '5, 10'
+            }).addTo(map);
+
+            map.fitBounds([driverLatLng, clientLatLng]);
+          });
+      });
+    }
+
+    function rejectOrder(id) {
+      fetch("/reject-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.text())
+      .then(response => {
+        alert(response);
+        fetchOrders();
+      });
+    }
+
+    function fetchOrders() {
+      fetch(`/my-orders?driver=${driverPhone}`)
+        .then(res => res.json())
+        .then(orders => {
+          const container = document.getElementById("orders");
+          container.innerHTML = "";
+
+          if (orders.length > 0) {
+            document.getElementById("orderSound").play();
+          }
+
+          orders.forEach(order => {
+            container.innerHTML += `
+              <div class="order">
+                <p><strong>من:</strong> ${order.from}</p>
+                <p><strong>إلى:</strong> ${order.to}</p>
+                <p><strong>ملاحظات:</strong> ${order.note || "لا توجد"}</p>
+                <button class="accept-btn" onclick="acceptOrder(${order.id}, '${order.client}')">✅ قبول الطلب</button>
+                <button class="accept-btn red" onclick="rejectOrder(${order.id})">❌ رفض</button>
+              </div>
+            `;
+          });
+        });
+    }
+
+    function joinChatRoom() {
+      socket.emit("joinRoom", roomId);
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const input = document.getElementById("chatInput");
+      const message = input.value;
+      if (!message.trim()) return;
+
+      const timestamp = new Date().toLocaleTimeString();
+      socket.emit("chat message", {
+        roomId,
+        sender: driverPhone,
+        message,
+        timestamp
+      });
+
+      input.value = "";
+    });
+
+    socket.on("chat message", ({ sender, message, timestamp }) => {
+      const div = document.createElement("div");
+      div.innerHTML = `<p><strong>${sender}:</strong> ${message} <small>🕒 ${timestamp}</small></p>`;
+      document.getElementById("chatMessages").appendChild(div);
+      document.getElementById("chatMessages").scrollTop = 9999;
+
+      document.getElementById("messageSound").play();
+    });
+
+    initMap();
+    fetchOrders();
+    setInterval(fetchOrders, 5000);
+    setInterval(updateDriverLocation, 5000);
+  </script>
+</body>
+</html>

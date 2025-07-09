@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة الإدارة - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #111;
+      color: #FFD700;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #222;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .section-title {
+      margin-top: 40px;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 لوحة الإدارة - Uber Sig 29</h1>
+
+  <div class="section-title">👥 قائمة المستخدمين</div>
+  <table id="usersTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>الاسم</th>
+        <th>رقم الهاتف</th>
+        <th>الدور</th>
+        <th>نوع المركبة</th>
+        <th>الحالة</th>
+        <th>بداية الاشتراك</th>
+        <th>❌ حذف</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="section-title">⭐ التقييمات</div>
+  <table id="ratingsTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>من (الزبون)</th>
+        <th>إلى (السائق)</th>
+        <th>التقييم</th>
+        <th>ملاحظة</th>
+        <th>الوقت</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch("/all-users");
+      const users = await res.json();
+      const tbody = document.querySelector("#usersTable tbody");
+      tbody.innerHTML = "";
+      users.forEach((user, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${user.name}</td>
+          <td>${user.phone}</td>
+          <td>${user.role}</td>
+          <td>${user.vehicle || "-"}</td>
+          <td>${user.status || "-"}</td>
+          <td>${new Date(user.startDate).toLocaleDateString()}</td>
+          <td><button onclick="deleteUser('${user.phone}')">🗑️</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteUser(phone) {
+      if (confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
+        await fetch("/delete-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone })
+        });
+        loadUsers();
+      }
+    }
+
+    async function loadRatings() {
+      const res = await fetch("/ratings");
+      const ratings = await res.json();
+      const tbody = document.querySelector("#ratingsTable tbody");
+      tbody.innerHTML = "";
+
+      for (let i = 0; i < ratings.length; i++) {
+        const r = ratings[i];
+
+        // جلب الأسماء من أرقام الهواتف
+        const fromRes = await fetch(`/get-name-by-phone?phone=${r.client}`);
+        const toRes = await fetch(`/get-name-by-phone?phone=${r.driver}`);
+        const fromData = await fromRes.json();
+        const toData = await toRes.json();
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${fromData.name}</td>
+          <td>${toData.name}</td>
+          <td>${r.rating} ⭐</td>
+          <td>${r.comment || "-"}</td>
+          <td>${new Date(r.time).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // تحميل البيانات
+    loadUsers();
+    loadRatings();
+  </script>
+</body>
+</html>

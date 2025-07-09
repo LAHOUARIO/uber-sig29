@@ -1,0 +1,158 @@
+[
+  {
+    "role": "driver",
+    "name": "houari ben",
+    "phone": "0549632259",
+    "password": "Suv67864",
+    "vehicle": "سيارة",
+    "startDate": "2025-07-06T12:28:56.039Z",
+    "status": "available",
+    "isActive": true,
+    "lat": 35.9399424,
+    "lon": 0.0917504
+  },
+  {
+    "role": "driver",
+    "name": "houari ben",
+    "phone": "0549632258",
+    "password": "Suv67864",
+    "vehicle": "سيارة",
+    "startDate": "2025-07-06T13:53:22.596Z",
+    "status": "available",
+    "isActive": true,
+    "lat": 35.9399424,
+    "lon": 0.0917504
+  },
+  {
+    "role": "client",
+    "name": "lukman benkhalfa",
+    "phone": "0549632256",
+    "password": "12345678",
+    "startDate": "2025-07-06T14:02:47.418Z",
+    "isActive": true,
+    "lat": 35.9399424,
+    "lon": 0.0917504
+  },
+  {
+    "role": "driver",
+    "name": "amine",
+    "phone": "abas",
+    "password": "12345678",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T02:16:18.036Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "amine",
+    "phone": "0549632260",
+    "password": "12345678",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T02:20:58.855Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "amine",
+    "phone": "0549632251",
+    "password": "00000000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T02:27:29.402Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "amino",
+    "phone": "0549632255",
+    "password": "12345678",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T02:29:59.569Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "mino",
+    "phone": "0549632253",
+    "password": "00000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T02:32:42.459Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "minouch",
+    "phone": "0549632250",
+    "password": "12345",
+    "vehicle": "سيارة",
+    "startDate": "2025-07-08T03:02:10.870Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "wario",
+    "phone": "0549632249",
+    "password": "00000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T03:19:59.066Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "warios",
+    "phone": "0549632248",
+    "password": "000000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T03:28:14.227Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "wari",
+    "phone": "0549632239",
+    "password": "000000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T03:42:02.580Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "wari",
+    "phone": "0549632238",
+    "password": "000000",
+    "vehicle": "دراجة نارية",
+    "startDate": "2025-07-08T03:47:28.440Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "driver",
+    "name": "2252255",
+    "phone": "0549632205",
+    "password": "00000000",
+    "vehicle": "دراجة نارية",
+    "isSigResident": "yes",
+    "startDate": "2025-07-09T08:18:29.706Z",
+    "status": "offline",
+    "isActive": true
+  },
+  {
+    "role": "client",
+    "name": "bnhhhhh",
+    "phone": "0549632265",
+    "password": "00000",
+    "isSigResident": "yes",
+    "startDate": "2025-07-09T08:19:25.866Z",
+    "isActive": true,
+    "lat": 35.9399424,
+    "lon": 0.0917504
+  }
+]

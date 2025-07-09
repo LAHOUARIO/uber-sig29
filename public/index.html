@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل الدخول - Uber Sig 29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background-color: #000;
+      color: #FFD700;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 80px;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+      background-color: #111;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+    input, select {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 10px;
+      background-color: #FFD700;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #announcement {
+      background-color: #222;
+      color: #FFD700;
+      padding: 10px;
+      text-align: center;
+      font-size: 1rem;
+      width: 100%;
+      position: fixed;
+      top: 0;
+    }
+    #telegram-link {
+      margin-top: 10px;
+      color: #00aced;
+      text-align: center;
+    }
+    .title {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="announcement">🕌 صلوا على النبي محمد ﷺ</div>
+  <h1>🚕 <span style="color:#FFD700">Uber Sig 29</span></h1>
+
+  <div class="title">🔐 تسجيل الدخول</div>
+  <form id="loginForm">
+    <input type="text" name="phone" placeholder="📱 رقم الهاتف" required />
+    <input type="password" name="password" placeholder="🔐 كلمة المرور" required />
+    <button type="submit">دخول</button>
+  </form>
+
+  <div class="title">📝 إنشاء حساب جديد</div>
+
+  <select id="roleSelect">
+    <option value="">اختر نوع الحساب</option>
+    <option value="client">زبون</option>
+    <option value="driver">سائق</option>
+  </select>
+
+  <!-- استمارة تسجيل الزبون -->
+  <form id="register-client" action="/register-client" method="POST" style="display:none">
+    <input type="text" name="name" placeholder="👤 الاسم الكامل" required />
+    <input type="text" name="phone" placeholder="📱 رقم الهاتف" required />
+    <input type="password" name="password" placeholder="🔐 كلمة المرور" required />
+    <input type="password" name="confirm" placeholder="🔐 تأكيد كلمة المرور" required />
+    <select name="isSigResident" required>
+      <option value="">هل تقيم في مدينة سيق؟</option>
+      <option value="yes">نعم</option>
+      <option value="no">لا</option>
+    </select>
+    <button type="submit">تسجيل كـ زبون</button>
+  </form>
+
+  <!-- استمارة تسجيل السائق -->
+  <form id="register-driver" action="/register-driver" method="POST" style="display:none">
+    <input type="text" name="name" placeholder="👤 الاسم الكامل" required />
+    <input type="text" name="phone" placeholder="📱 رقم الهاتف" required />
+    <input type="password" name="password" placeholder="🔐 كلمة المرور" required />
+    <input type="password" name="confirm" placeholder="🔐 تأكيد كلمة المرور" required />
+    <select name="vehicle" required>
+      <option value="">🚗 نوع المركبة</option>
+      <option value="سيارة">سيارة</option>
+      <option value="دراجة نارية">دراجة نارية</option>
+    </select>
+    <select name="isSigResident" required>
+      <option value="">هل تقيم في مدينة سيق؟</option>
+      <option value="yes">نعم</option>
+      <option value="no">لا</option>
+    </select>
+    <button type="submit">تسجيل كـ سائق</button>
+  </form>
+
+  <div id="telegram-link">
+    📣 انضم إلى مجموعتنا على تيليغرام:
+    <a href="https://t.me/ubersig29" target="_blank" style="color:#00aced; text-decoration: underline;">اضغط هنا</a>
+  </div>
+
+  <script>
+    const roleSelect = document.getElementById("roleSelect");
+    const driverForm = document.getElementById("register-driver");
+    const clientForm = document.getElementById("register-client");
+
+    roleSelect.addEventListener("change", () => {
+      driverForm.style.display = "none";
+      clientForm.style.display = "none";
+
+      if (roleSelect.value === "driver") driverForm.style.display = "block";
+      if (roleSelect.value === "client") clientForm.style.display = "block";
+    });
+
+    // ✅ تسجيل الدخول بشكل ديناميكي
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const phone = formData.get("phone");
+      const password = formData.get("password");
+
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password })
+      });
+
+      const result = await response.text();
+
+      if (result.startsWith("✅ driver")) {
+        localStorage.setItem("phone", phone);
+        localStorage.setItem("role", "driver");
+        window.location.href = `driver-dashboard.html?phone=${phone}`;
+      } else if (result.startsWith("✅ client")) {
+        localStorage.setItem("phone", phone);
+        localStorage.setItem("role", "client");
+        window.location.href = `client.html?phone=${phone}`;
+      } else {
+        alert(result); // عرض رسالة الخطأ
+      }
+    });
+  </script>
+</body>
+</html>
