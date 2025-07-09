@@ -1,4 +1,3 @@
-<!-- 🔁 كامل كود driver-dashboard.html -->
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -82,16 +81,6 @@
 
   <h2>🚖 مرحبًا بك في لوحة السائق</h2>
 
-<<<<<<< HEAD
-  <!-- زر تسجيل الخروج -->
-  <div style="text-align:right; margin-bottom: 15px;">
-    <button onclick="logout()" style="background:red; color:white; padding:10px; border:none; border-radius:5px;">
-      🚪 تسجيل الخروج
-    </button>
-  </div>
-
-=======
->>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
   <div id="currentStatus" style="text-align:center; font-size: 18px; margin-bottom: 10px;">
     🟠 جاري التحديد...
   </div>
@@ -104,13 +93,9 @@
 
   <h3>📥 الطلبات الجديدة:</h3>
   <div id="orders"></div>
+
   <div id="map"></div>
 
-<<<<<<< HEAD
-=======
-  <div id="map"></div>
-
->>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
   <div id="chatBox">
     <h3>💬 دردشة مع الزبون</h3>
     <div id="chatMessages"></div>
@@ -125,45 +110,6 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-<<<<<<< HEAD
-    // ✅ التحقق من تسجيل الدخول
-    const driverPhone = localStorage.getItem("phone");
-    const role = localStorage.getItem("role");
-    if (!driverPhone || role !== "driver") {
-      alert("📛 الرجاء تسجيل الدخول أولاً.");
-      location.href = "index.html";
-    }
-
-    // ✅ زر تسجيل الخروج
-    function logout() {
-      localStorage.clear();
-      location.href = "index.html";
-    }
-
-    // باقي الكود كما هو ...
-    let map, driverMarker;
-    let clientPhone = "";
-    let roomId = "";
-    const socket = io();
-
-    function initMap() {
-      map = L.map('map').setView([35.5441, 0.1896], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © OpenStreetMap contributors'
-      }).addTo(map);
-    }
-
-    function updateDriverLocation() {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude, longitude } = pos.coords;
-
-        fetch("/update-location", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: driverPhone, lat: latitude, lon: longitude })
-        });
-
-=======
     const driverPhone = localStorage.getItem("phone");
     if (!driverPhone) {
       alert("📛 رقم الهاتف مفقود. الرجاء تسجيل الدخول.");
@@ -177,8 +123,10 @@
 
     function initMap() {
       map = L.map('map').setView([35.5441, 0.1896], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © OpenStreetMap contributors'
+      // ✅ CartoDB Dark Theme
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO',
+        subdomains: 'abcd'
       }).addTo(map);
     }
 
@@ -192,7 +140,6 @@
           body: JSON.stringify({ phone: driverPhone, lat: latitude, lon: longitude })
         });
 
->>>>>>> 96966fbd75d0d561b80bd6dd71e5d7761ebf9e26
         if (!driverMarker) {
           driverMarker = L.marker([latitude, longitude], {
             icon: L.icon({ iconUrl: "icons/car.png", iconSize: [40, 40], iconAnchor: [20, 20] })
