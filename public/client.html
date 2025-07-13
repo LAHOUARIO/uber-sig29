@@ -102,7 +102,6 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // ✅ دالة تشغيل الصوت
   function playSound(name) {
     const audio = new Audio(`/sound/${name}`);
     audio.play().catch(err => console.error("فشل تشغيل الصوت:", err));
@@ -135,20 +134,21 @@
   const clientIcon = L.icon({ iconUrl: 'icons/client.png', iconSize: [32, 32] });
   const carIcon = L.icon({ iconUrl: 'icons/car.png', iconSize: [32, 32] });
 
+  let clientLat, clientLon;
   let clientMarker;
   let driverMarkers = [];
 
   navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
+    clientLat = pos.coords.latitude;
+    clientLon = pos.coords.longitude;
 
-    clientMarker = L.marker([lat, lon], { icon: clientIcon }).addTo(map).bindPopup("📍 أنت هنا");
-    map.setView([lat, lon], 14);
+    clientMarker = L.marker([clientLat, clientLon], { icon: clientIcon }).addTo(map).bindPopup("📍 أنت هنا");
+    map.setView([clientLat, clientLon], 14);
 
     fetch("/update-location", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: clientPhone, lat, lon })
+      body: JSON.stringify({ phone: clientPhone, lat: clientLat, lon: clientLon })
     });
   }, err => {
     alert("❌ لم يتم تحديد موقعك");
@@ -158,12 +158,24 @@
     driverMarkers.forEach(marker => map.removeLayer(marker));
     driverMarkers = [];
 
+    drivers.sort((a, b) => {
+      if (!a.lat || !a.lon) return 1;
+      if (!b.lat || !b.lon) return -1;
+      const da = map.distance([clientLat, clientLon], [a.lat, a.lon]);
+      const db = map.distance([clientLat, clientLon], [b.lat, b.lon]);
+      return da - db;
+    });
+
     drivers.forEach(driver => {
       if (driver.lat && driver.lon && driver.status === "available") {
+        const distance = map.distance([clientLat, clientLon], [driver.lat, driver.lon]);
+        const speedKmH = 40;
+        const estimatedMinutes = Math.ceil((distance / 1000) / speedKmH * 60);
+
         const marker = L.marker([driver.lat, driver.lon], { icon: carIcon })
           .addTo(map)
           .on("click", () => showOrderForm(driver.phone))
-          .bindPopup(`🚗 ${driver.name}`);
+          .bindPopup(`🚗 ${driver.name}<br>📏 ${Math.round(distance)} متر<br>🕒 ${estimatedMinutes} دقيقة`);
         driverMarkers.push(marker);
       }
     });
@@ -176,6 +188,16 @@
         const container = document.getElementById("drivers");
         container.innerHTML = "";
         drivers.forEach(driver => {
+          if (driver.lat && driver.lon && clientLat && clientLon) {
+            const distance = map.distance([clientLat, clientLon], [driver.lat, driver.lon]);
+            const speedKmH = 40;
+            const estimatedMinutes = Math.ceil((distance / 1000) / speedKmH * 60);
+            driver.distance = distance;
+            driver.eta = estimatedMinutes;
+          }
+        });
+        updateDriverMarkers(drivers);
+        drivers.forEach(driver => {
           const statusClass =
             driver.status === "available" ? "available" :
             driver.status === "busy" ? "busy" : "offline";
@@ -185,6 +207,8 @@
               <p><strong>👤 الاسم:</strong> ${driver.name}</p>
               <p><strong>🚗 المركبة:</strong> ${driver.vehicle}</p>
               <p><strong>📱 الهاتف:</strong> ${driver.phone}</p>
+              <p><strong>📏 المسافة:</strong> ${driver.distance ? Math.round(driver.distance) + " متر" : "غير معروف"}</p>
+              <p><strong>🕒 الوقت التقريبي:</strong> ${driver.eta ? driver.eta + " دقيقة" : "-"}</p>
               <p><span class="status ${statusClass}">${driver.status}</span></p>
               ${driver.status === "available"
                 ? `<button onclick="showOrderForm('${driver.phone}')">📨 طلب توصيل</button>`
@@ -192,8 +216,6 @@
             </div>
           `;
         });
-
-        updateDriverMarkers(drivers);
       });
   }
 
@@ -227,7 +249,6 @@
   const socket = io();
   let roomId;
 
-  // ✅ إشعار الزبون إذا السائق رفض الطلب
   socket.on("orderRejected", ({ driver, orderId }) => {
     alert(`❌ تم رفض طلبك من طرف السائق (${driver})`);
     playSound("rejected.mp3");

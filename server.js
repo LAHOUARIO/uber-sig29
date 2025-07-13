@@ -57,8 +57,10 @@ app.post("/register-driver", (req, res) => {
     vehicle,
     isSigResident,
     startDate: new Date().toISOString(),
-    status: "offline",
-    isActive: true
+    status: "available",
+    isActive: true,
+    lat: 35.9399,
+    lon: 0.0917
   });
 
   saveUsers(users);
@@ -161,15 +163,14 @@ app.post("/send-order", (req, res) => {
   res.send("✅ تم إرسال الطلب بنجاح!");
 });
 
-// ✅ جلب الطلبات للسائق
+// ✅ جلب الطلبات المفتوحة
 app.get("/my-orders", (req, res) => {
-  const { driver } = req.query;
   const orders = loadOrders();
-  const myOrders = orders.filter(o => o.driver === driver && o.status === "pending");
+  const myOrders = orders.filter(o => o.status === "pending");
   res.json(myOrders);
 });
 
-// ✅ قبول الطلب + إشعار الزبون
+// ✅ قبول الطلب
 app.post("/accept-order", (req, res) => {
   const { id } = req.body;
   const orders = loadOrders();
@@ -179,16 +180,15 @@ app.post("/accept-order", (req, res) => {
   order.status = "accepted";
   saveOrders(orders);
 
-  io.to(order.client).emit("orderAccepted", {
+  io.to(`${order.client}-${order.driver}`).emit("orderAccepted", {
     driver: order.driver,
     orderId: order.id
   });
 
-  const chatUrl = `/chat.html?client=${order.client}&driver=${order.driver}&role=driver&phone=${order.driver}`;
-  res.send(chatUrl);
+  res.send("✅ تم قبول الطلب.");
 });
 
-// ✅ رفض الطلب + إشعار الزبون
+// ✅ رفض الطلب
 app.post("/reject-order", (req, res) => {
   const { id } = req.body;
   const orders = loadOrders();
@@ -198,8 +198,7 @@ app.post("/reject-order", (req, res) => {
   order.status = "rejected";
   saveOrders(orders);
 
-  // 📢 إشعار الزبون أن الطلب مرفوض
-  io.to(order.client).emit("orderRejected", {
+  io.to(`${order.client}-${order.driver}`).emit("orderRejected", {
     driver: order.driver,
     orderId: order.id
   });
@@ -207,7 +206,7 @@ app.post("/reject-order", (req, res) => {
   res.send("❌ تم رفض الطلب.");
 });
 
-// ✅ التقييم
+// ✅ تقييم
 app.post("/submit-rating", (req, res) => {
   const { client, driver, rating, comment } = req.body;
   const ratings = loadRatings();
@@ -239,16 +238,13 @@ app.get("/get-client-location", (req, res) => {
   res.json({ lat: client.lat, lon: client.lon });
 });
 
-// ✅ WebSocket
+// ✅ WebSocket للدردشة
 io.on("connection", (socket) => {
   console.log("💬 مستخدم متصل");
 
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
     console.log(`👥 انضم للغرفة: ${roomId}`);
-
-    const phone = roomId.split("-")[0];
-    socket.join(phone);
   });
 
   socket.on("chat message", ({ roomId, sender, message, timestamp }) => {
@@ -260,7 +256,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ إدارة النظام
+// ✅ إدارة المستخدمين
 app.get("/all-users", (req, res) => {
   const users = loadUsers();
   res.json(users);

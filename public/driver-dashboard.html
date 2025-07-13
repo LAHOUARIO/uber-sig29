@@ -48,6 +48,16 @@
       border-radius: 10px;
       border: 2px solid #FFD700;
     }
+    #etaBox {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #111;
+      border: 1px solid #FFD700;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 18px;
+      display: none;
+    }
     #chatBox {
       background-color: #111;
       border: 1px solid #FFD700;
@@ -95,6 +105,7 @@
   <div id="orders"></div>
 
   <div id="map"></div>
+  <div id="etaBox"></div>
 
   <div id="chatBox">
     <h3>💬 دردشة مع الزبون</h3>
@@ -103,7 +114,6 @@
     <button id="sendBtn">📤 إرسال</button>
   </div>
 
-  <!-- ✅ أصوات -->
   <audio id="orderSound" src="sounds/order.mp3"></audio>
   <audio id="messageSound" src="sounds/message.mp3"></audio>
 
@@ -118,13 +128,13 @@
 
     let map, driverMarker;
     let clientPhone = "";
+    let clientLatLng = null;
     let roomId = "";
+    let routeLine = null;
     const socket = io();
 
     function initMap() {
       map = L.map('map').setView([35.5441, 0.1896], 14);
-
-      // ✅ OpenStreetMap عادي (نفس خريطة الزبون)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
@@ -146,6 +156,19 @@
           }).addTo(map).bindPopup("🚗 موقعك الحالي");
         } else {
           driverMarker.setLatLng([latitude, longitude]);
+        }
+
+        if (clientLatLng) {
+          const distanceToClient = map.distance([latitude, longitude], clientLatLng);
+          if (distanceToClient < 50) {
+            if (routeLine) {
+              map.removeLayer(routeLine);
+              routeLine = null;
+            }
+            document.getElementById("etaBox").style.display = "none";
+            clientLatLng = null;
+            alert("✅ لقد وصلت إلى الزبون!");
+          }
         }
 
         map.setView([latitude, longitude], 14);
@@ -208,20 +231,35 @@
           .then(data => {
             if (!data.lat || !data.lon) return alert("❌ لم يتم العثور على موقع الزبون");
 
-            const clientMarker = L.marker([data.lat, data.lon], {
+            clientLatLng = L.latLng(data.lat, data.lon);
+
+            L.marker([data.lat, data.lon], {
               icon: L.icon({ iconUrl: "icons/client.png", iconSize: [32, 32], iconAnchor: [16, 32] })
             }).addTo(map).bindPopup("📍 الزبون");
 
             const driverLatLng = driverMarker.getLatLng();
-            const clientLatLng = L.latLng(data.lat, data.lon);
 
-            L.polyline([driverLatLng, clientLatLng], {
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline([driverLatLng, clientLatLng], {
               color: "yellow",
               weight: 4,
               dashArray: '5, 10'
             }).addTo(map);
 
             map.fitBounds([driverLatLng, clientLatLng]);
+
+            const distance = map.distance(driverLatLng, clientLatLng);
+            const speedKmH = 40;
+            const estimatedMinutes = Math.ceil((distance / 1000) / speedKmH * 60);
+
+            L.popup()
+              .setLatLng(clientLatLng)
+              .setContent(`🕒 الوقت التقريبي للوصول: ${estimatedMinutes} دقيقة`)
+              .openOn(map);
+
+            const etaBox = document.getElementById("etaBox");
+            etaBox.innerText = `🕒 الوقت التقريبي للوصول إلى الزبون: ${estimatedMinutes} دقيقة`;
+            etaBox.style.display = "block";
           });
       });
     }

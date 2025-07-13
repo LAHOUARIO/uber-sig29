@@ -30,8 +30,8 @@
     "password": "12345678",
     "startDate": "2025-07-06T14:02:47.418Z",
     "isActive": true,
-    "lat": 35.9399424,
-    "lon": 0.0917504
+    "lat": 35.848192,
+    "lon": 0.1540096
   },
   {
     "role": "driver",
@@ -165,5 +165,107 @@
     "isActive": true,
     "lat": 35.6614144,
     "lon": -0.6651904
+  },
+  {
+    "role": "driver",
+    "name": "vb",
+    "phone": "0549632240",
+    "password": "11111",
+    "vehicle": "دراجة نارية",
+    "isSigResident": "yes",
+    "startDate": "2025-07-11T15:56:36.774Z",
+    "status": "offline",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
+  },
+  {
+    "role": "driver",
+    "name": "vb",
+    "phone": "0549631111",
+    "password": "11111",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-11T16:00:12.526Z",
+    "status": "offline",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
+  },
+  {
+    "role": "driver",
+    "name": "gakpo",
+    "phone": "0549631199",
+    "password": "11111",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-11T16:46:56.621Z",
+    "status": "available",
+    "isActive": true,
+    "lat": 35.848192,
+    "lon": 0.1540096
+  },
+  {
+    "role": "client",
+    "name": "هواري",
+    "phone": "0549632277",
+    "password": "12345",
+    "isSigResident": "yes",
+    "startDate": "2025-07-12T14:13:48.066Z",
+    "isActive": true,
+    "lat": 35.7302272,
+    "lon": -0.5668864
+  },
+  {
+    "role": "driver",
+    "name": "زبون",
+    "phone": "0549632216",
+    "password": "12345",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-12T14:15:47.285Z",
+    "status": "offline",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
+  },
+  {
+    "role": "driver",
+    "name": "لقمان",
+    "phone": "0549632290",
+    "password": "12345",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-12T14:35:46.609Z",
+    "status": "offline",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
+  },
+  {
+    "role": "driver",
+    "name": "elhakim",
+    "phone": "0549632291",
+    "password": "12345",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-12T14:38:02.748Z",
+    "status": "offline",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
+  },
+  {
+    "role": "driver",
+    "name": "maram",
+    "phone": "0549632223",
+    "password": "00000",
+    "vehicle": "سيارة",
+    "isSigResident": "yes",
+    "startDate": "2025-07-12T14:43:58.753Z",
+    "status": "available",
+    "isActive": true,
+    "lat": 35.9399,
+    "lon": 0.0917
   }
 ]
